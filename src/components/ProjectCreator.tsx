@@ -2,9 +2,8 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
+import ProjectViewer from '@/components/ProjectViewer';
 
 interface Message {
   id: string;
@@ -25,7 +24,7 @@ const ProjectCreator = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: 'Привет! Я помогу создать твой сайт. Как назовём проект?',
+      text: 'Привет! Как назовём твой сайт?',
       sender: 'assistant'
     }
   ]);
@@ -34,7 +33,6 @@ const ProjectCreator = () => {
   const [config, setConfig] = useState<Partial<ProjectConfig>>({});
   const [sessionId] = useState(() => `session-${Date.now()}`);
   const [createdProject, setCreatedProject] = useState<any>(null);
-  const [showPreview, setShowPreview] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
 
   const handleSend = async () => {
@@ -47,7 +45,6 @@ const ProjectCreator = () => {
     };
 
     setMessages(prev => [...prev, userMessage]);
-
     await processStep(input);
     setInput('');
   };
@@ -59,12 +56,12 @@ const ProjectCreator = () => {
     switch (step) {
       case 1:
         setConfig(prev => ({ ...prev, title: userInput }));
-        assistantResponse = 'Отлично! Теперь опиши, что будет делать сайт (1-2 предложения)';
+        assistantResponse = 'Опиши, что будет делать сайт';
         break;
       
       case 2:
         setConfig(prev => ({ ...prev, description: userInput }));
-        assistantResponse = 'Какой стиль дизайна предпочитаешь?';
+        assistantResponse = 'Выбери стиль:';
         setTimeout(() => {
           setMessages(prev => [...prev, {
             id: Date.now().toString(),
@@ -77,12 +74,12 @@ const ProjectCreator = () => {
       
       case 3:
         setConfig(prev => ({ ...prev, style: userInput }));
-        assistantResponse = 'Какие разделы нужны? (например: home, about, services, contact)';
+        assistantResponse = 'Какие разделы? (home, about, contact)';
         break;
       
       case 4:
         setConfig(prev => ({ ...prev, sections: userInput }));
-        assistantResponse = 'Выбери цветовую схему:';
+        assistantResponse = 'Выбери цвет:';
         setTimeout(() => {
           setMessages(prev => [...prev, {
             id: (Date.now() + 1).toString(),
@@ -96,7 +93,7 @@ const ProjectCreator = () => {
       case 5:
         const colors = parseColors(userInput);
         setConfig(prev => ({ ...prev, colors }));
-        assistantResponse = 'Отлично! Создаю твой сайт... ✨';
+        assistantResponse = 'Создаю сайт...';
         nextStep = 6;
         
         setTimeout(async () => {
@@ -107,7 +104,7 @@ const ProjectCreator = () => {
             sections: config.sections || 'home,about,contact',
             colors
           });
-        }, 1500);
+        }, 1000);
         break;
     }
 
@@ -126,11 +123,10 @@ const ProjectCreator = () => {
 
   const parseColors = (input: string): { primary: string; secondary: string } => {
     const colorMap: Record<string, { primary: string; secondary: string }> = {
-      'фиолетовый': { primary: '#9b87f5', secondary: '#7E69AB' },
       'синий': { primary: '#0EA5E9', secondary: '#0284C7' },
       'зелёный': { primary: '#10B981', secondary: '#059669' },
-      'розовый': { primary: '#EC4899', secondary: '#DB2777' },
-      'оранжевый': { primary: '#F97316', secondary: '#EA580C' }
+      'фиолетовый': { primary: '#9b87f5', secondary: '#7E69AB' },
+      'красный': { primary: '#EF4444', secondary: '#DC2626' }
     };
 
     const normalized = input.toLowerCase();
@@ -138,17 +134,17 @@ const ProjectCreator = () => {
       if (normalized.includes(key)) return value;
     }
 
-    return { primary: '#9b87f5', secondary: '#7E69AB' };
+    return { primary: '#0EA5E9', secondary: '#0284C7' };
   };
 
   const handleStyleClick = (style: string) => {
     setInput(style);
-    handleSend();
+    setTimeout(() => handleSend(), 100);
   };
 
   const handleColorClick = (colorName: string) => {
     setInput(colorName);
-    handleSend();
+    setTimeout(() => handleSend(), 100);
   };
 
   const createProject = async (projectConfig: ProjectConfig) => {
@@ -169,18 +165,14 @@ const ProjectCreator = () => {
 
       setMessages(prev => [...prev, {
         id: Date.now().toString(),
-        text: `🎉 Готово! Твой сайт "${projectConfig.title}" создан!`,
+        text: `Готово! Сайт "${projectConfig.title}" создан 🎉`,
         sender: 'assistant'
       }]);
-
-      setTimeout(() => {
-        setShowPreview(true);
-      }, 1000);
       
     } catch (error) {
       setMessages(prev => [...prev, {
         id: Date.now().toString(),
-        text: 'Произошла ошибка при создании сайта. Попробуй ещё раз.',
+        text: 'Ошибка создания. Попробуй ещё раз',
         sender: 'assistant'
       }]);
     } finally {
@@ -194,13 +186,12 @@ const ProjectCreator = () => {
     if (step === 3) {
       return (
         <div className="flex flex-wrap gap-2 mt-2">
-          {['Минималистичный', 'Современный', 'Яркий', 'Корпоративный'].map((style) => (
+          {['Минималистичный', 'Современный', 'Яркий'].map((style) => (
             <Button
               key={style}
               variant="outline"
               size="sm"
               onClick={() => handleStyleClick(style)}
-              className="hover:bg-primary/10 hover:text-primary hover:border-primary"
             >
               {style}
             </Button>
@@ -213,18 +204,16 @@ const ProjectCreator = () => {
       return (
         <div className="flex flex-wrap gap-2 mt-2">
           {[
-            { name: 'Фиолетовый', color: '#9b87f5' },
             { name: 'Синий', color: '#0EA5E9' },
             { name: 'Зелёный', color: '#10B981' },
-            { name: 'Розовый', color: '#EC4899' },
-            { name: 'Оранжевый', color: '#F97316' }
+            { name: 'Фиолетовый', color: '#9b87f5' },
+            { name: 'Красный', color: '#EF4444' }
           ].map((colorOption) => (
             <Button
               key={colorOption.name}
               variant="outline"
               size="sm"
               onClick={() => handleColorClick(colorOption.name)}
-              className="hover:bg-primary/10 hover:border-primary"
             >
               <span 
                 className="w-4 h-4 rounded-full mr-2" 
@@ -240,30 +229,24 @@ const ProjectCreator = () => {
     return null;
   };
 
-  return (
-    <>
-      <Card className="p-6 h-[600px] flex flex-col bg-card/50 backdrop-blur border-border/50">
-        <div className="flex items-center gap-2 mb-4">
-          <Icon name="Wand2" className="text-primary" size={24} />
-          <h3 className="text-xl font-semibold">Создать сайт</h3>
-          {step > 1 && step < 6 && (
-            <Badge variant="outline" className="ml-auto">
-              Шаг {step}/5
-            </Badge>
-          )}
-        </div>
+  if (createdProject) {
+    return <ProjectViewer project={createdProject} config={config} />;
+  }
 
-        <div className="flex-1 overflow-y-auto space-y-4 mb-4 pr-2">
+  return (
+    <div className="grid md:grid-cols-2 gap-6">
+      <Card className="p-6 h-[600px] flex flex-col">
+        <h3 className="text-lg font-semibold mb-4">Создание сайта</h3>
+
+        <div className="flex-1 overflow-y-auto space-y-4 mb-4">
           {messages.map((message) => (
             <div key={message.id}>
-              <div
-                className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
+              <div className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div
-                  className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                  className={`max-w-[80%] rounded-lg px-4 py-2 ${
                     message.sender === 'user'
                       ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted text-foreground'
+                      : 'bg-muted'
                   }`}
                 >
                   <p className="text-sm">{message.text}</p>
@@ -274,13 +257,9 @@ const ProjectCreator = () => {
           ))}
           {isCreating && (
             <div className="flex justify-start">
-              <div className="bg-muted rounded-2xl px-4 py-3">
-                <div className="flex items-center gap-2">
-                  <div className="animate-spin">
-                    <Icon name="Loader2" size={16} />
-                  </div>
-                  <p className="text-sm">Создаю сайт...</p>
-                </div>
+              <div className="bg-muted rounded-lg px-4 py-2 flex items-center gap-2">
+                <Icon name="Loader2" size={16} className="animate-spin" />
+                <p className="text-sm">Создаю...</p>
               </div>
             </div>
           )}
@@ -291,76 +270,41 @@ const ProjectCreator = () => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-            placeholder="Напиши ответ..."
-            className="flex-1 bg-background border-border"
+            placeholder="Твой ответ..."
             disabled={step >= 6 || isCreating}
           />
-          <Button 
-            onClick={handleSend} 
-            size="icon" 
-            className="bg-primary hover:bg-primary/90"
-            disabled={step >= 6 || isCreating}
-          >
+          <Button onClick={handleSend} size="icon" disabled={step >= 6 || isCreating}>
             <Icon name="Send" size={20} />
           </Button>
         </div>
       </Card>
 
-      <Dialog open={showPreview} onOpenChange={setShowPreview}>
-        <DialogContent className="max-w-4xl max-h-[80vh]">
-          <DialogHeader>
-            <DialogTitle>Превью твоего сайта</DialogTitle>
-          </DialogHeader>
-          {createdProject && (
-            <div className="space-y-4">
-              <div className="flex items-center gap-4">
-                <Badge className="bg-primary/20 text-primary">
-                  ID: {createdProject.project_id}
-                </Badge>
-                <p className="text-sm text-muted-foreground">
-                  Создан: {new Date().toLocaleString('ru')}
-                </p>
+      <Card className="p-6">
+        <h3 className="text-lg font-semibold mb-4">Как это работает</h3>
+        <div className="space-y-4">
+          {[
+            { step: 1, title: 'Название', desc: 'Как назовём сайт?' },
+            { step: 2, title: 'Описание', desc: 'Что он будет делать?' },
+            { step: 3, title: 'Стиль', desc: 'Выбери готовый дизайн' },
+            { step: 4, title: 'Разделы', desc: 'Какие страницы нужны' },
+            { step: 5, title: 'Цвет', desc: 'Выбери цветовую схему' }
+          ].map((item) => (
+            <div key={item.step} className={`flex gap-3 ${step >= item.step ? 'opacity-100' : 'opacity-40'}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                step > item.step ? 'bg-primary text-primary-foreground' : 
+                step === item.step ? 'bg-primary/20 text-primary' : 'bg-muted'
+              }`}>
+                {step > item.step ? <Icon name="Check" size={16} /> : item.step}
               </div>
-              
-              <div className="border border-border rounded-lg overflow-hidden">
-                <iframe
-                  srcDoc={`
-                    <!DOCTYPE html>
-                    <html>
-                      <head>
-                        <meta charset="UTF-8">
-                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                      </head>
-                      <body style="margin: 0;">
-                        <div style="padding: 2rem; text-align: center;">
-                          <h1 style="color: ${config.colors?.primary};">${config.title}</h1>
-                          <p style="font-size: 1.2rem;">${config.description}</p>
-                          <p style="margin-top: 2rem; color: #666;">
-                            Стиль: ${config.style} | Разделы: ${config.sections}
-                          </p>
-                        </div>
-                      </body>
-                    </html>
-                  `}
-                  className="w-full h-[400px] bg-white"
-                  title="Website Preview"
-                />
-              </div>
-
-              <div className="flex gap-2 justify-end">
-                <Button variant="outline" onClick={() => setShowPreview(false)}>
-                  Закрыть
-                </Button>
-                <Button className="bg-primary hover:bg-primary/90">
-                  <Icon name="Download" className="mr-2" size={16} />
-                  Скачать код
-                </Button>
+              <div>
+                <p className="font-medium">{item.title}</p>
+                <p className="text-sm text-muted-foreground">{item.desc}</p>
               </div>
             </div>
-          )}
-        </DialogContent>
-      </Dialog>
-    </>
+          ))}
+        </div>
+      </Card>
+    </div>
   );
 };
 
