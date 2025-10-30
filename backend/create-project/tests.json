@@ -1,0 +1,30 @@
+{
+  "tests": [
+    {
+      "name": "Create project with minimal data",
+      "method": "POST",
+      "path": "/",
+      "headers": {
+        "X-Session-Id": "test-session-123"
+      },
+      "body": {
+        "title": "Test Website",
+        "description": "Test description"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "project_id": "number",
+        "session_id": "string",
+        "preview_url": "string",
+        "message": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Handle OPTIONS request",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    }
+  ]
+}

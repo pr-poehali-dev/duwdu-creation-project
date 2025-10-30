@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
+import ProjectCreator from '@/components/ProjectCreator';
 
 interface Message {
   id: string;
@@ -13,70 +14,7 @@ interface Message {
 }
 
 const Index = () => {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      text: 'Привет! Я DUWDU - твой AI-ассистент для создания проектов. Расскажи, что хочешь создать? 🚀',
-      sender: 'assistant',
-      timestamp: new Date()
-    }
-  ]);
-  const [input, setInput] = useState('');
   const [activeSection, setActiveSection] = useState('home');
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [suggestions] = useState([
-    'Создать лендинг для бизнеса',
-    'Разработать интернет-магазин',
-    'Сделать портфолио',
-    'Построить SaaS-приложение'
-  ]);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  const handleSend = () => {
-    if (!input.trim()) return;
-
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      text: input,
-      sender: 'user',
-      timestamp: new Date()
-    };
-
-    setMessages([...messages, userMessage]);
-
-    setTimeout(() => {
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        text: generateResponse(input),
-        sender: 'assistant',
-        timestamp: new Date()
-      };
-      setMessages(prev => [...prev, assistantMessage]);
-    }, 1000);
-
-    setInput('');
-  };
-
-  const generateResponse = (userInput: string): string => {
-    const responses = [
-      'Отличная идея! Давай уточним детали. Какой стиль дизайна тебе нравится?',
-      'Понял тебя! А какие основные разделы должны быть на сайте?',
-      'Супер! Расскажи больше о целевой аудитории проекта.',
-      'Замечательно! Нужна ли интеграция с платежными системами?'
-    ];
-    return responses[Math.floor(Math.random() * responses.length)];
-  };
-
-  const handleSuggestionClick = (suggestion: string) => {
-    setInput(suggestion);
-  };
 
   const scrollToSection = (sectionId: string) => {
     setActiveSection(sectionId);
@@ -141,98 +79,76 @@ const Index = () => {
             <Card className="p-6 animate-slide-up bg-card/50 backdrop-blur border-border/50">
               <div className="flex items-center gap-2 mb-4">
                 <Icon name="Sparkles" className="text-primary" size={24} />
-                <h3 className="text-xl font-semibold">Интерактивный сбор требований</h3>
+                <h3 className="text-xl font-semibold">Как это работает</h3>
               </div>
               <p className="text-muted-foreground mb-6">
-                Отвечай на умные вопросы, прикрепляй изображения для референсов,
-                получай персонализированные рекомендации
+                Отвечай на простые вопросы в чате справа, и DUWDU создаст готовый сайт за минуту
               </p>
               
-              <div className="space-y-3">
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
-                  <Icon name="Check" className="text-primary mt-1" size={20} />
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                    <span className="text-primary font-bold">1</span>
+                  </div>
                   <div>
-                    <p className="font-medium">Пошаговые вопросы</p>
-                    <p className="text-sm text-muted-foreground">Система задаёт уточняющие вопросы</p>
+                    <p className="font-medium mb-1">Назови проект</p>
+                    <p className="text-sm text-muted-foreground">Просто введи название твоего сайта</p>
                   </div>
                 </div>
                 
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
-                  <Icon name="Image" className="text-primary mt-1" size={20} />
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                    <span className="text-primary font-bold">2</span>
+                  </div>
                   <div>
-                    <p className="font-medium">Загрузка изображений</p>
-                    <p className="text-sm text-muted-foreground">Прикрепляй референсы дизайна</p>
+                    <p className="font-medium mb-1">Опиши идею</p>
+                    <p className="text-sm text-muted-foreground">Расскажи, что будет делать сайт</p>
                   </div>
                 </div>
                 
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
-                  <Icon name="Lightbulb" className="text-primary mt-1" size={20} />
-                  <div>
-                    <p className="font-medium">Умные подсказки</p>
-                    <p className="text-sm text-muted-foreground">Suggestions для быстрого старта</p>
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                    <span className="text-primary font-bold">3</span>
                   </div>
+                  <div>
+                    <p className="font-medium mb-1">Выбери стиль</p>
+                    <p className="text-sm text-muted-foreground">Нажми на готовый вариант дизайна</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                    <span className="text-primary font-bold">4</span>
+                  </div>
+                  <div>
+                    <p className="font-medium mb-1">Укажи разделы</p>
+                    <p className="text-sm text-muted-foreground">Какие страницы нужны на сайте</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                    <span className="text-primary font-bold">5</span>
+                  </div>
+                  <div>
+                    <p className="font-medium mb-1">Выбери цвета</p>
+                    <p className="text-sm text-muted-foreground">Кликни на понравившуюся палитру</p>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-lg bg-primary/10 border border-primary/30 mt-6">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Icon name="Sparkles" className="text-primary" size={20} />
+                    <p className="font-medium text-primary">Готово!</p>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Получишь превью сайта и сможешь скачать код
+                  </p>
                 </div>
               </div>
             </Card>
 
-            <Card className="p-6 animate-slide-up animation-delay-200 h-[600px] flex flex-col bg-card/50 backdrop-blur border-border/50">
-              <div className="flex items-center gap-2 mb-4">
-                <Icon name="MessageSquare" className="text-primary" size={24} />
-                <h3 className="text-xl font-semibold">Демо чата</h3>
-              </div>
-
-              <div className="flex-1 overflow-y-auto space-y-4 mb-4 pr-2 scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
-                {messages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                  >
-                    <div
-                      className={`max-w-[80%] rounded-2xl px-4 py-3 ${
-                        message.sender === 'user'
-                          ? 'bg-primary text-primary-foreground'
-                          : 'bg-muted text-foreground'
-                      }`}
-                    >
-                      <p className="text-sm">{message.text}</p>
-                    </div>
-                  </div>
-                ))}
-                <div ref={messagesEndRef} />
-              </div>
-
-              {suggestions.length > 0 && messages.length < 3 && (
-                <div className="mb-4">
-                  <p className="text-xs text-muted-foreground mb-2">Попробуй спросить:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {suggestions.map((suggestion, index) => (
-                      <Button
-                        key={index}
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleSuggestionClick(suggestion)}
-                        className="text-xs hover:bg-primary/10 hover:text-primary hover:border-primary"
-                      >
-                        {suggestion}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div className="flex gap-2">
-                <Input
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-                  placeholder="Напиши своё сообщение..."
-                  className="flex-1 bg-background border-border"
-                />
-                <Button onClick={handleSend} size="icon" className="bg-primary hover:bg-primary/90">
-                  <Icon name="Send" size={20} />
-                </Button>
-              </div>
-            </Card>
+            <ProjectCreator />
           </div>
         </div>
       </section>
